@@ -1,4 +1,14 @@
-const MsgItem = ({ id, timestamp, text }) => {
+import MsgInput from "./MsgInput";
+
+const MsgItem = ({
+  id,
+  userId,
+  timestamp,
+  text,
+  onUpdate,
+  isEditing,
+  startEdit,
+}) => {
   return (
     <li className="messages__item">
       <h3>
@@ -15,7 +25,17 @@ const MsgItem = ({ id, timestamp, text }) => {
         </sub>
       </h3>
 
-      {text}
+      {isEditing ? (
+        <>
+          <MsgInput mutate={onUpdate} id={id} />
+        </>
+      ) : (
+        text
+      )}
+
+      <div className="messages__buttons">
+        <button onClick={startEdit}>수정</button>
+      </div>
     </li>
   );
 };
