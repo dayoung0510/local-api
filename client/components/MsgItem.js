@@ -1,6 +1,6 @@
 const MsgItem = ({ id, timestamp, text }) => {
   return (
-    <li className="messages_item">
+    <li className="messages__item">
       <h3>
         {id}
         <sub>
