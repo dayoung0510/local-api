@@ -1,5 +1,5 @@
 const path = require("path");
-const withSass = require("@zeit/next-sass");
+// const withSass = require("@zeit/next-sass");
 
 module.exports = {
   sassOptions: {
@@ -7,4 +7,4 @@ module.exports = {
   },
 };
 
-module.exports = withSass();
+// module.exports = withSass();
