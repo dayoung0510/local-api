@@ -7,9 +7,9 @@ import fetcher from "../fetcher";
 const MsgList = () => {
   const [msgs, setMsgs] = useState();
   const [editingId, setEditingId] = useState(null);
-  const {
-    query: { userId = "" },
-  } = useRouter();
+  const { query } = useRouter();
+
+  const userId = query.userId || query.userid || "";
 
   const onCreate = async (text) => {
     const newMsg = await fetcher("post", "/messages", { text, userId });
@@ -57,7 +57,7 @@ const MsgList = () => {
 
   return (
     <>
-      <MsgInput mutate={onCreate} />
+      {userId && <MsgInput mutate={onCreate} />}
       <ul className="messages">
         {msgs &&
           msgs.map((x) => (
