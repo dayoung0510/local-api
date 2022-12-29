@@ -72,13 +72,12 @@ const messagesRoute = [
     //메시지 삭제
     method: "delete",
     route: "/messages/:id",
-    handler: ({ body, params: { id } }, res) => {
+    handler: ({ params: { id }, query: { userId } }, res) => {
       try {
         const msgs = getMsgs();
         const targetIndex = msgs.findIndex((msg) => msg.id === id);
         if (targetIndex < 0) throw "메시지가 없습니다.";
-        if (msgs[targetIndex].userId !== body.userId)
-          throw "사용자가 다릅니다.";
+        if (msgs[targetIndex].userId !== userId) throw "사용자가 다릅니다.";
 
         msgs.splice(targetIndex, 1);
         setMsgs(msgs);
