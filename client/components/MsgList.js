@@ -5,8 +5,8 @@ import { useState, useEffect, useRef } from "react";
 import fetcher from "../fetcher";
 import useInfiniteScroll from "../hooks/useInfiniteScroll";
 
-const MsgList = () => {
-  const [msgs, setMsgs] = useState([]);
+const MsgList = ({ smsgs, users }) => {
+  const [msgs, setMsgs] = useState(smsgs);
   const [editingId, setEditingId] = useState(null);
   const { query } = useRouter();
   const fetchMoreEl = useRef(null);
@@ -58,13 +58,12 @@ const MsgList = () => {
       setHasNext(false);
       return;
     }
-    setMsgs((msgs) => [...msgs, newMsgs]);
+    setMsgs((msgs) => [...msgs, ...newMsgs]);
   };
+
   useEffect(() => {
     if (intersecting && hasNext) getMessages();
   }, [intersecting]);
-
-  console.log(msgs);
 
   return (
     <>
@@ -79,6 +78,7 @@ const MsgList = () => {
             onDelete={() => onDelete(x.id)}
             isEditing={editingId === x.id}
             myId={userId}
+            user={users[x.userId]}
           />
         ))}
       </ul>
