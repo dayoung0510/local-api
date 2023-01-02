@@ -9,9 +9,10 @@ const messagesRoute = [
     //전체메시지 가져오기
     method: "get",
     route: "/messages",
-    handler: (req, res) => {
+    handler: ({ query: { cursor = "" } }, res) => {
       const msgs = getMsgs();
-      res.send(msgs);
+      const fromIndex = msgs.findIndex((msg) => msg.id === cursor) + 1;
+      res.send(msgs.slice(fromIndex, fromIndex + 15));
     },
   },
 
