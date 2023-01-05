@@ -5,8 +5,9 @@ const setMsgs = (data) => writeDB("messages", data);
 
 const messageResolver = {
   Query: {
-    messages: (parent, arg, { db }) => {
-      return db.messages;
+    messages: (parent, { cursor = "" }, { db }) => {
+      const fromIndex = db.messages.findIndex((msg) => msg.id === cursor) + 1;
+      return db.messages?.slice(fromIndex, fromIndex + 15) || [];
     },
     message: (parent, { id = "" }, { db }) => {
       return db.messages.find((msg) => msg.id === id);
@@ -14,13 +15,14 @@ const messageResolver = {
   },
   Mutation: {
     createMessage: (parent, { text, userId }, { db }) => {
+      if (!userId) throw Error("사용자가 없습니다.");
       const newMsg = {
         id: v4(),
         text,
         userId,
         timestamp: Date.now(),
       };
-      db.message.unshift(newMsg);
+      (db.message || []).unshift(newMsg);
       setMsgs(db.messages);
       return newMsg;
     },

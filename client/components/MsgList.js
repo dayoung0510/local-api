@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
 import { fetcher, QueryKeys } from "../queryClient";
 import useInfiniteScroll from "../hooks/useInfiniteScroll";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
 import {
   CREATE_MESSAGE,
   GET_MESSAGES,
@@ -17,9 +17,8 @@ const MsgList = ({ smsgs, users }) => {
   const [msgs, setMsgs] = useState(smsgs);
   const [editingId, setEditingId] = useState(null);
   const { query } = useRouter();
-  // const fetchMoreEl = useRef(null);
-  // const [hasNext, setHasNext] = useState(true);
-  // const intersecting = useInfiniteScroll(fetchMoreEl);
+  const fetchMoreEl = useRef(null);
+  const intersecting = useInfiniteScroll(fetchMoreEl);
 
   const userId = query.userId || query.userid || "";
 
@@ -73,16 +72,29 @@ const MsgList = ({ smsgs, users }) => {
 
   const doneEdit = () => setEditingId(null);
 
-  const { data, error, isError } = useQuery(QueryKeys.MESSAGES, () =>
-    fetcher(GET_MESSAGES)
+  const { data, error, isError, fetchNextPage, hasNextPage } = useInfiniteQuery(
+    QueryKeys.MESSAGES,
+    ({ pageParam = "" }) => fetcher(GET_MESSAGES, { cursor: pageParam }),
+    {
+      getNextPageParam: ({ messages }) => {
+        return messages?.[messages.length - 1]?.id;
+      },
+    }
   );
 
   useEffect(() => {
-    if (!data?.messages) return;
-    setMsgs(data?.messages || []);
-  }, [data?.messages]);
+    if (!data?.pages) return;
+    const mergedMsgs = data.pages.flatMap((d) => d.messages);
+    setMsgs(mergedMsgs);
+  }, [data?.pages]);
+
+  useEffect(() => {
+    if (intersecting && hasNextPage) fetchNextPage();
+  }, [intersecting, hasNextPage]);
 
   if (isError) return null;
+
+  console.log(msgs);
 
   return (
     <>
@@ -101,7 +113,7 @@ const MsgList = ({ smsgs, users }) => {
           />
         ))}
       </ul>
-      {/* <div ref={fetchMoreEl} /> */}
+      <div ref={fetchMoreEl} />
     </>
   );
 };
